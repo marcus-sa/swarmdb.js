@@ -1,0 +1,24 @@
+{
+  "name": "swarmdb.js",
+  "version": "0.0.1",
+  "description": "SWARMDB JavaScript API",
+  "main": "./index.js",
+  "dependencies": {
+    "keythereum": "^1.0.2",
+    "net": "^1.0.2",
+    "web3": "^1.0.0-beta.26"
+  },
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wolktoken/swarmdb.js.git"
+  },
+  "homepage": "https://github.com/wolktoken/swarmdb.js",
+  "keywords": [
+    "SWARMDB",
+    "JavaScript"
+  ],
+  "author": "Bruce Han <bruce@wolk.com>",
+  "license": "MIT"
+}
