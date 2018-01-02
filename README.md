@@ -1,2 +1,1 @@
-# swarmdb.js
-SWARMDB JavaScript API
+## SWARMDB JavaScript API
