@@ -4,6 +4,8 @@ This is a client library for the SWARMDB API, implemented in JavaScript. It's av
 
 You need to run a SWARMDB node to use this library.
 
+*Please note* that the library is still under heavy development and it might not be stable.
+
 ## Install
 ```bash
 > npm install swarmdb.js
