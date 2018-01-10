@@ -1,15 +1,11 @@
 var net = require('net');
-var fs = require('fs');
 var Web3 = require('web3');
-var keythereum = require("keythereum");
 
-const KEYSTORE_PATH = "";
-const KEYSTORE_PASSWORD = "";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 function Connection(options) {
     var client = new net.Socket();
-    this.web3 = new Web3(new Web3.providers.HttpProvider("")); 
-    var privateKey;
+    this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); 
     
     this.signChallenge = false; 
     this.buffer = [];
@@ -18,12 +14,6 @@ function Connection(options) {
     var that = this;
     this.client = client.connect(options.port, options.host, function() {  
         console.log('CONNECTED TO: ' + options.host + ':' + options.port);
-        fs.readFile(KEYSTORE_PATH, 'utf-8', function (err, keystore) {
-            if (err) console.log(err);
-            var privateKeyBuffer = keythereum.recover(KEYSTORE_PASSWORD, JSON.parse(keystore));
-            privateKey = privateKeyBuffer.toString("hex");
-            console.log("private key read from keystore: " + "0x" + privateKey);
-        });
     });
 
     this.client.on('close', function() {
@@ -37,7 +27,7 @@ function Connection(options) {
     this.promise = new Promise((resolve, reject) => {
         that.client.on('data', function(data) {
             if (!that.signChallenge) {
-                var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), "0x" + privateKey);
+                var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
                 console.log("Sending signature: " + sig.signature.slice(2));
                 that.signChallenge = true;
                 that.verify = that.client.write(sig.signature.slice(2) + "\n", null, function() {
@@ -73,10 +63,11 @@ Connection.prototype = {
             this.waitForResponse = true;
         }
     },
-    createTable: function(table, columns, callback) {
+    createTable: function(table, tableowner, columns, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "CreateTable",
+            "tableowner": tableowner,
             "table": table,
             "columns": columns
         }) + "\n";
@@ -84,10 +75,11 @@ Connection.prototype = {
             that.request(msg, callback);
         });
     },
-    get: function(table, key, callback) {
+    get: function(table, tableowner, key, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Get",
+            "tableowner": tableowner,
             "table": table,
             "key": key,
             "columns": null
@@ -96,10 +88,11 @@ Connection.prototype = {
             that.request(msg, callback);
         });
     },
-    put: function(table, row, callback) {
+    put: function(table, tableowner, row, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Put",
+            "tableowner": tableowner,
             "table": table,
             "row": row,
             "columns": null
@@ -108,10 +101,11 @@ Connection.prototype = {
             that.request(msg, callback);
         });
     },
-    query: function(queryStatement, callback) {
+    query: function(queryStatement, tableowner, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Query",
+            "tableowner": tableowner,
             "RawQuery": queryStatement
         }) + "\n";
         this.promise.then(() => {
