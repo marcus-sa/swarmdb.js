@@ -88,13 +88,13 @@ Connection.prototype = {
             that.request(msg, callback);
         });
     },
-    put: function(table, tableowner, row, callback) {
+    put: function(table, tableowner, rows, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Put",
             "tableowner": tableowner,
             "table": table,
-            "row": row,
+            "rows": rows,
             "columns": null
         }) + "\n";
         this.promise.then(() => {
