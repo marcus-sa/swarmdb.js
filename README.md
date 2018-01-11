@@ -1,5 +1,7 @@
 # SWARMDB JavaScript API
 
+[![Join the chat at https://gitter.im/wolktoken/swarmdb.js](https://badges.gitter.im/wolktoken/swarmdb.js.svg)](https://gitter.im/wolktoken/swarmdb.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is a client library for the SWARMDB API, implemented in JavaScript. It's available on npm as a node module.
 
 You need to run a SWARMDB node with local Ethereum environment to use this library.
