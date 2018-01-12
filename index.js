@@ -3,7 +3,7 @@ var Web3 = require('web3');
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-function Connection(options) {
+function SWARMDB(options) {
     var client = new net.Socket();
     this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); 
     
@@ -13,22 +13,22 @@ function Connection(options) {
 
     var that = this;
     this.client = client.connect(options.port, options.host, function() {  
-        console.log('CONNECTED TO: ' + options.host + ':' + options.port);
+        logExceptOnTest('CONNECTED TO: ' + options.host + ':' + options.port);
     });
 
     this.client.on('close', function() {
-        console.log('Server side connection closed');
+        logExceptOnTest('Server side connection closed');
     });
 
     this.client.on('error', function(err) {
-        console.log("Error: " + err);
+        logExceptOnTest("Error: " + err);
     });
     
     this.promise = new Promise((resolve, reject) => {
         that.client.on('data', function(data) {
             if (!that.signChallenge) {
                 var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
-                console.log("Sending signature: " + sig.signature.slice(2));
+                logExceptOnTest("Sending signature: " + sig.signature.slice(2));
                 that.signChallenge = true;
                 that.verify = that.client.write(sig.signature.slice(2) + "\n", null, function() {
                     resolve();
@@ -51,7 +51,7 @@ function Connection(options) {
         });
     });
 };
-Connection.prototype = {
+SWARMDB.prototype = {
     request: function(msg, handler) {
         this.buffer.push([handler, msg]);
         this.flush();
@@ -114,6 +114,12 @@ Connection.prototype = {
     }
 };
 
+function logExceptOnTest(string) {
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(string);
+    }
+}
+
 exports.createConnection = function createConnection(config) {
-    return new Connection(config);
+    return new SWARMDB(config);
 };
