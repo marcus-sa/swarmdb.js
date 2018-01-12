@@ -26,7 +26,7 @@ var swarmdbAPI = require("swarmdb.js");
 
 ## Open connection
 Open a connection by specifying configuration options like host and port
-> `swarmdb.createConnection(options)`
+> `swarmdbAPI.createConnection(options)`
 ```javascript
 var swarmdb = swarmdbAPI.createConnection({
     host: SWARMDB_HOST, //e.g. "localhost"
