@@ -4,7 +4,7 @@
 
 This is a client library for the SWARMDB API, implemented in JavaScript. It's available on npm as a node module.
 
-You need to run a SWARMDB node (which will be released soon) with local Ethereum environment to use this library.
+You need to run a [SWARMDB node](https://github.com/wolktoken/swarm.wolk.com) (which will be released soon) with local Ethereum environment to use this library.
 
 *Please note* that the library is still under heavy development and it might not be stable.
 
@@ -89,3 +89,12 @@ swarmdb.put("contacts", tableowner, [{"Cells": { "name": "Bertie Basset", "age":
     console.log(result);
 });
 ```
+
+## Run tests
+Make sure the private key is configured before running the tests
+```bash
+> npm test
+```
+
+## Feedback / Question
+Email us at [support@wolk.com](mailto:support@wolk.com)

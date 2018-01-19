@@ -1,17 +1,21 @@
 var net = require('net');
-var Web3 = require('web3');
+// TODO: only import sub node module such as web3-eth-accounts for signing to make swarmdb.js lighter
+var Web3 = require('web3'); 
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 function SWARMDB(options) {
     var client = new net.Socket();
+    // TODO: make users able to specify the Ethereum provider
     this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); 
     
     this.signChallenge = false; 
+    // store the requests in buffer
     this.buffer = [];
     this.waitForResponse = false;
 
     var that = this;
+
     this.client = client.connect(options.port, options.host, function() {  
         logExceptOnTest('CONNECTED TO: ' + options.host + ':' + options.port);
     });
@@ -26,6 +30,7 @@ function SWARMDB(options) {
     
     this.promise = new Promise((resolve, reject) => {
         that.client.on('data', function(data) {
+            // make sure verification succeeds before processing any request
             if (!that.signChallenge) {
                 var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
                 logExceptOnTest("Sending signature: " + sig.signature.slice(2));
@@ -34,11 +39,13 @@ function SWARMDB(options) {
                     resolve();
                 });   
             }
+            // process the requests in the buffer in sequence
             that.waitForResponse = false;
             if (that.buffer.length) {
                 var pair = that.buffer.shift();
                 var handler = pair[0];
                 process.nextTick(function() {
+                    // TODO: parse error following the format of returned value
                     if (data.err) {
                         handler("err", null);
                     }
@@ -52,10 +59,12 @@ function SWARMDB(options) {
     });
 };
 SWARMDB.prototype = {
+    // buffer the request
     request: function(msg, handler) {
         this.buffer.push([handler, msg]);
         this.flush();
     },
+    // send request to server
     flush: function() {
         var pair = this.buffer[0];
         if (pair && !this.waitForResponse) {
@@ -114,12 +123,13 @@ SWARMDB.prototype = {
     }
 };
 
+// suppress logging in the test mode
 function logExceptOnTest(string) {
     if (process.env.NODE_ENV !== 'test') {
       console.log(string);
     }
 }
 
-exports.createConnection = function createConnection(config) {
-    return new SWARMDB(config);
+exports.createConnection = function createConnection(options) {
+    return new SWARMDB(options);
 };
