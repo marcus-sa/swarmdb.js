@@ -72,11 +72,10 @@ SWARMDB.prototype = {
             this.waitForResponse = true;
         }
     },
-    createTable: function(table, tableowner, columns, callback) {
+    createTable: function(table, columns, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "CreateTable",
-            "tableowner": tableowner,
             "table": table,
             "columns": columns
         }) + "\n";

@@ -14,7 +14,8 @@ You need to run a [SWARMDB node](https://github.com/wolktoken/swarm.wolk.com) (w
 ```
 
 ## Configure
-Set the private key as an environment variable. Private key must start with "0x".
+Set the private key as an environment variable. Private key must start with "0x".  
+This private key is associated with the user configured on the SWARMDB node.
 ```bash
 > export PRIVATE_KEY=0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 ```
@@ -35,17 +36,16 @@ var swarmdb = swarmdbAPI.createConnection({
 ```
 
 ## Create table
-Create a table by specifying table name, table owner and column details.
-Table owner is usually an account address.
-> `swarmdb.createTable(table, tableowner, columns, callback)`
+Create a table by specifying table name, table owner and column details.  
+Table owner is not required in createTable method. It will fetch the Ethereum address associated with the user configured on the SWARMDB node and save it as tableowner in the table schema.
+> `swarmdb.createTable(table, columns, callback)`
 ```javascript
-var tableowner = "0x1234567890123456789012345678901234567890";
 var columns = [
     { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
     { "indextype": 2, "columnname": "name", "columntype": 2, "primary": 0 },
     { "indextype": 1, "columnname": "age", "columntype": 1, "primary": 0 }
 ];
-swarmdb.createTable("contacts", tableowner, columns, function (err, result) {
+swarmdb.createTable("contacts", columns, function (err, result) {
     if (err) {
       throw err;
     }
@@ -54,10 +54,11 @@ swarmdb.createTable("contacts", tableowner, columns, function (err, result) {
 ```
 
 ## Read / Get / Select
-Read a row from SWARMDB
+Read a row from SWARMDB  
+Table owner, which is an Ethereum address without "0x", is required to read a row.
 > `swarmdb.get(table, tableowner, key, callback)`
 ```javascript
-var tableowner = "0x1234567890123456789012345678901234567890";
+var tableowner = "1234567890123456789012345678901234567890";
 swarmdb.get("contacts", tableowner, "bertie@gmail.com", function (err, result) {
     if (err) {
       throw err;
@@ -68,7 +69,7 @@ swarmdb.get("contacts", tableowner, "bertie@gmail.com", function (err, result) {
 
 > `swarmdb.query(sqlQuery, tableowner, callback)`
 ```javascript
-var tableowner = "0x1234567890123456789012345678901234567890";
+var tableowner = "1234567890123456789012345678901234567890";
 swarmdb.query("SELECT email, name, age FROM contacts WHERE email = 'bertie@gmail.com'", tableowner, function (err, result) {
     if (err) {
       throw err;
@@ -78,10 +79,11 @@ swarmdb.query("SELECT email, name, age FROM contacts WHERE email = 'bertie@gmail
 ```
 
 ## Write / Put
-Write a row to SWARMDB
+Write a row to SWARMDB  
+Table owner, which is an Ethereum address without "0x", is required to read a row.
 > `swarmdb.put(table, tableowner, row, callback)`
 ```javascript
-var tableowner = "0x1234567890123456789012345678901234567890";
+var tableowner = "1234567890123456789012345678901234567890";
 swarmdb.put("contacts", tableowner, [{"Cells": { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" }}],  function (err, result) {
     if (err) {
       throw err;

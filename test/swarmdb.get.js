@@ -5,7 +5,7 @@ var swarmdb = require('./helper/client');
 
 describe('read a row', function() {
     var tablename = "contacts";
-    var tableowner = "0x1234567890123456789012345678901234567890";
+    var tableowner = "9982ad7bfbe62567287dafec879d20687e4b76f5";
 
     before(function(done) {
         var columns = [
@@ -13,7 +13,7 @@ describe('read a row', function() {
             { "indextype": 2, "columnname": "name", "columntype": 2, "primary": 0 },
             { "indextype": 1, "columnname": "age", "columntype": 1, "primary": 0 }
         ];
-        swarmdb.createTable(tablename, tableowner, columns, function () {
+        swarmdb.createTable(tablename, columns, function () {
             done();
         });
     });
