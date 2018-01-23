@@ -1,13 +1,15 @@
 var net = require('net');
 // TODO: only import sub node module such as web3-eth-accounts for signing to make swarmdb.js lighter
+// https://www.npmjs.com/package/web3-providers-http + https://www.npmjs.com/package/web3-eth-accounts
 var Web3 = require('web3'); 
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+var PRIVATE_KEY = process.env.PRIVATE_KEY;
+var PROVIDER = process.env.PROVIDER;
 
 function SWARMDB(options) {
     var client = new net.Socket();
-    // TODO: make users able to specify the Ethereum provider
-    this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545")); 
+    var providerUrl = PROVIDER ? PROVIDER : "http://localhost:8545";
+    this.web3 = new Web3(new Web3.providers.HttpProvider(providerUrl)); 
     
     this.signChallenge = false; 
     // store the requests in buffer
@@ -32,6 +34,7 @@ function SWARMDB(options) {
         that.client.on('data', function(data) {
             // make sure verification succeeds before processing any request
             if (!that.signChallenge) {
+                if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
                 var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
                 logExceptOnTest("Sending signature: " + sig.signature.slice(2));
                 that.signChallenge = true;
