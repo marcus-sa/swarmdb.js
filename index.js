@@ -109,9 +109,9 @@ SWARMDB.prototype = {
         });
     },
     put: function(table, tableowner, rows, callback) {
-        if (! (rows instanceof Array)) {
-            throw "rows field in Put method is NOT a VALID array";
-        }
+        // if (! (rows instanceof Array)) {
+        //     throw "rows field in Put method is NOT a VALID array";
+        // }
         var that = this;
         var rowArr = [];
         for (var i = 0; i < rows.length; i++) {
