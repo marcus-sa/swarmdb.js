@@ -49,7 +49,7 @@ function SWARMDB(options) {
                 var handler = pair[0];
                 process.nextTick(function() {
                     // TODO: parse error following the format of returned value
-                    if (data.err) {
+                    if (data.errorcode) {
                         handler("err", null);
                     }
                     else {
