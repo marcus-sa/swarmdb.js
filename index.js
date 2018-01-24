@@ -101,11 +101,15 @@ SWARMDB.prototype = {
     },
     put: function(table, tableowner, rows, callback) {
         var that = this;
+        var rowArr = [];
+        for (var i = 0; i < rows.length; i++) {
+            rowArr.push({"Cells": rows[i]});
+        }
         var msg = JSON.stringify({
             "requesttype": "Put",
             "tableowner": tableowner,
             "table": table,
-            "rows": rows,
+            "rows": rowArr,
             "columns": null
         }) + "\n";
         this.promise.then(() => {

@@ -5,7 +5,7 @@ var swarmdb = require('./helper/client');
 
 describe('write a row', function() {
     var tablename = "contacts";
-    var tableowner = "9982ad7bfbe62567287dafec879d20687e4b76f5";
+    var tableowner = "f407a6e06520eb9210d8a6a94c8bdf846b0e1c11";
 
     before(function(done) {
         var columns = [
@@ -19,7 +19,7 @@ describe('write a row', function() {
     });
 
     it('swarmdb.put', function (done) {
-        swarmdb.put(tablename, tableowner, [{"Cells": { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" } }], function (err, result) {
+        swarmdb.put(tablename, tableowner, [ { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" } ], function (err, result) {
             assert(result === "ok");
             done();
         });
