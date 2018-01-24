@@ -12,12 +12,22 @@ You need to run a [SWARMDB node](https://github.com/wolktoken/swarm.wolk.com) (w
 ```bash
 > npm install swarmdb.js
 ```
+Note that since web3 module has some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, you need to install it manually right now.
+```bash
+> npm install web3@1.0.0-beta.26
+```
 
 ## Configure
-Set the private key as an environment variable. Private key must start with "0x".  
+Upon installation and startup of your SWARMDB node, a default user and associated private key are generated and stored in the [SWARMDB configuration file](https://github.com/wolktoken/swarm.wolk.com/wiki/9.-SWARMDB-Server-Configuration,--Authentication-and-Voting#configuration-file). 
+
+Set the private key as an environment variable.
 This private key is associated with the user configured on the SWARMDB node.
 ```bash
-> export PRIVATE_KEY=0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+> export PRIVATE_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+(Optional) You can also specify an Ethereum provider instead of using the default http://localhost:8545
+```bash
+> export PROVIDER=YOUR_PROVIDER_LINK
 ```
 
 ## Import module
@@ -31,12 +41,12 @@ Open a connection by specifying configuration options like host and port
 ```javascript
 var swarmdb = swarmdbAPI.createConnection({
     host: SWARMDB_HOST, //e.g. "localhost"
-    port: SWARMDB_PORT  //e.g. 2000
+    port: SWARMDB_PORT  //e.g. 2001
 });
 ```
 
 ## Create table
-Create a table by specifying table name, table owner and column details.  
+Create a table by specifying table name and column details.  
 Table owner is not required in createTable method. It will fetch the Ethereum address associated with the user configured on the SWARMDB node and save it as tableowner in the table schema.
 > `swarmdb.createTable(table, columns, callback)`
 ```javascript
@@ -84,7 +94,7 @@ Table owner, which is an Ethereum address without "0x", is required to read a ro
 > `swarmdb.put(table, tableowner, row, callback)`
 ```javascript
 var tableowner = "1234567890123456789012345678901234567890";
-swarmdb.put("contacts", tableowner, [{"Cells": { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" }}],  function (err, result) {
+swarmdb.put("contacts", tableowner, [ { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" } ],  function (err, result) {
     if (err) {
       throw err;
     }
@@ -92,10 +102,11 @@ swarmdb.put("contacts", tableowner, [{"Cells": { "name": "Bertie Basset", "age":
 });
 ```
 
-## Run tests
+## Run tests for developement
 Make sure the private key is configured before running the tests
 ```bash
-> npm test
+> git clone https://github.com/wolktoken/swarmdb.js.git
+> cd swarmdb.js && npm test
 ```
 
 ## Feedback / Question
