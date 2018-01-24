@@ -34,9 +34,12 @@ function SWARMDB(options) {
         that.client.on('data', function(data) {
             // make sure verification succeeds before processing any request
             if (!that.signChallenge) {
+                if (!PRIVATE_KEY || (PRIVATE_KEY.length != 64 && PRIVATE_KEY.length != 66)) {
+                    throw "Please set correct PRIVATE_KEY";
+                }
                 if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
                 var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
-                logExceptOnTest("Sending signature: " + sig.signature.slice(2));
+                // logExceptOnTest("Sending signature: " + sig.signature.slice(2));
                 that.signChallenge = true;
                 that.verify = that.client.write(sig.signature.slice(2) + "\n", null, function() {
                     resolve();
@@ -48,13 +51,19 @@ function SWARMDB(options) {
                 var pair = that.buffer.shift();
                 var handler = pair[0];
                 process.nextTick(function() {
-                    // TODO: parse error following the format of returned value
-                    if (data.errorcode) {
-                        handler("err", null);
+                    var dataJSON;
+                    if (parseJSON(data)) {
+                        dataJSON = JSON.parse(data);
+                        if (dataJSON.errorcode) {
+                            handler(JSON.stringify(dataJSON), null);
+                        }
+                        else {
+                            handler(null, data.toString().trim());
+                        }
                     }
                     else {
                         handler(null, data.toString().trim());
-                    }    
+                    }   
                 });
                 that.flush();
             } 
@@ -100,6 +109,9 @@ SWARMDB.prototype = {
         });
     },
     put: function(table, tableowner, rows, callback) {
+        if (! (rows instanceof Array)) {
+            throw "rows field in Put method is NOT a VALID array";
+        }
         var that = this;
         var rowArr = [];
         for (var i = 0; i < rows.length; i++) {
@@ -135,6 +147,19 @@ function logExceptOnTest(string) {
       console.log(string);
     }
 }
+
+// check if a string is valid JSON string
+function parseJSON (jsonString){
+    try {
+        var o = JSON.parse(jsonString);
+        if (o && typeof o === "object") {
+            return true;
+        }
+    }
+    catch (e) { }
+
+    return false;
+};
 
 exports.createConnection = function createConnection(options) {
     return new SWARMDB(options);
