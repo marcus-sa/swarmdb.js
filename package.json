@@ -1,11 +1,11 @@
 {
   "name": "swarmdb.js",
-  "version": "0.0.4-alpha.4",
+  "version": "0.0.4-alpha.5",
   "description": "SWARMDB JavaScript API",
   "main": "./index.js",
   "dependencies": {
     "net": "^1.0.2",
-    "web3": "^1.0.0-beta.18"
+    "web3": "^1.0.0-beta.26"
   },
   "devDependencies": {
     "mocha": "^4.1.0"
