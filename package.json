@@ -1,6 +1,6 @@
 {
   "name": "swarmdb.js",
-  "version": "0.0.4-alpha.8",
+  "version": "0.0.4-alpha.9",
   "description": "SWARMDB JavaScript API",
   "main": "./index.js",
   "dependencies": {

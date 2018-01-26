@@ -24,4 +24,12 @@ describe('write a row', function() {
             done();
         });
     });
+
+    it('swarmdb.insert', function (done) {
+        var query = "insert into contacts (email, age, name) values ('paul@gmail.com', 8, 'Paul')";
+        swarmdb.query(query, tableowner, function (err, result) {
+            assert(result === "ok");
+            done();
+        });
+    });
 });
