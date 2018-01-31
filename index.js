@@ -1,3 +1,4 @@
+// TODO: rewrite everything in ES6
 var net = require('net');
 // TODO: only import sub node module such as web3-eth-accounts for signing to make swarmdb.js lighter
 // https://www.npmjs.com/package/web3-providers-http + https://www.npmjs.com/package/web3-eth-accounts
@@ -69,7 +70,9 @@ function SWARMDB(options) {
             } 
         });
     });
-};
+}
+
+// TODO: return Promise instead of callback after rewriting in ES6
 SWARMDB.prototype = {
     // buffer the request
     request: function(msg, handler) {
@@ -84,23 +87,38 @@ SWARMDB.prototype = {
             this.waitForResponse = true;
         }
     },
-    createTable: function(table, columns, callback) {
+    createDatabase: function(database, owner, encrypted, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "CreateDatabase",
+            "database": database,
+            "owner": owner,
+            "encrypted": encrypted
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
+    },
+    createTable: function(database, table, owner, columns, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "CreateTable",
+            "database": database,
             "table": table,
+            "owner": owner,
             "columns": columns
         }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);
         });
     },
-    get: function(table, tableowner, key, callback) {
+    get: function(database, table, owner, key, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Get",
-            "tableowner": tableowner,
+            "database": database,
             "table": table,
+            "owner": owner,
             "key": key,
             "columns": null
         }) + "\n";
@@ -108,7 +126,7 @@ SWARMDB.prototype = {
             that.request(msg, callback);
         });
     },
-    put: function(table, tableowner, rows, callback) {
+    put: function(database, table, owner, rows, callback) {
         // if (! (rows instanceof Array)) {
         //     throw "rows field in Put method is NOT a VALID array";
         // }
@@ -119,8 +137,9 @@ SWARMDB.prototype = {
         }
         var msg = JSON.stringify({
             "requesttype": "Put",
-            "tableowner": tableowner,
+            "database": database,
             "table": table,
+            "owner": owner,
             "rows": rowArr,
             "columns": null
         }) + "\n";
@@ -128,11 +147,12 @@ SWARMDB.prototype = {
             that.request(msg, callback);
         });
     },
-    query: function(queryStatement, tableowner, callback) {
+    query: function(queryStatement, database, owner, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Query",
-            "tableowner": tableowner,
+            "database": database,
+            "owner": owner,
             "RawQuery": queryStatement
         }) + "\n";
         this.promise.then(() => {
@@ -159,7 +179,7 @@ function parseJSON (jsonString){
     catch (e) { }
 
     return false;
-};
+}
 
 exports.createConnection = function createConnection(options) {
     return new SWARMDB(options);

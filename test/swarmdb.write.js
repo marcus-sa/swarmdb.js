@@ -1,35 +1,29 @@
 process.env.NODE_ENV = "test";
 
+require("./swarmdb.createTable.js");
+
 var assert = require('assert');
 var swarmdb = require('./helper/client');
 
 describe('write a row', function() {
+    var dbname = "testdb21";
     var tablename = "contacts";
-    var tableowner = "f407a6e06520eb9210d8a6a94c8bdf846b0e1c11";
-
-    before(function(done) {
-        var columns = [
-            { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
-            { "indextype": 2, "columnname": "name", "columntype": 2, "primary": 0 },
-            { "indextype": 1, "columnname": "age", "columntype": 1, "primary": 0 }
-        ];
-        swarmdb.createTable(tablename, columns, function () {
-            done();
-        });
-    });
+    var owner = "test21.eth";
 
     it('swarmdb.put', function (done) {
-        swarmdb.put(tablename, tableowner, [ { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" } ], function (err, result) {
+        swarmdb.put(dbname, tablename, owner, [ { "name": "Bertie Basset", "age": 7, "email": "bertie@gmail.com" } ], function (err, result) {
             assert(result === "ok");
             done();
         });
     });
 
+    /*
     it('swarmdb.insert', function (done) {
         var query = "insert into contacts (email, age, name) values ('paul@gmail.com', 8, 'Paul')";
-        swarmdb.query(query, tableowner, function (err, result) {
+        swarmdb.query(query, dbname, owner, function (err, result) {
             assert(result === "ok");
             done();
         });
     });
+    */
 });
