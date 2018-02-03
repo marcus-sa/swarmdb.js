@@ -5,31 +5,32 @@ require("./swarmdb.write.js");
 var assert = require('assert');
 var swarmdb = require('./helper/client');
 
+const { DB_NAME, TABLE_NAME, OWNER } = require('./helper/constants');
+
 describe('read a row', function() {
-    var dbname = "testdb21";
-    var tablename = "contacts";
-    var owner = "test21.eth";
 
     it('swarmdb.get', function (done) {
-        swarmdb.get(dbname, tablename, owner, "bertie@gmail.com", function (err, result) {
+        swarmdb.get(DB_NAME, TABLE_NAME, OWNER, "bertie@gmail.com", function (err, result) {
+            // result: {"data":[{"email":"bertie@gmail.com","name":"Bertie Basset","age":7}]}
             result = JSON.parse(result);
-            assert(result.email === "bertie@gmail.com");
-            assert(result.name === "Bertie Basset");
-            assert(result.age === 7);
+            assert(result.data[0].email === "bertie@gmail.com");
+            assert(result.data[0].name === "Bertie Basset");
+            assert(result.data[0].age === 7);
             done();
         });
     });
 
-    /*
+    
     it('swarmdb.select', function (done) {
         var query = "select email, age, name from contacts where email = 'paul@gmail.com'";
-        swarmdb.query(query, dbname, owner, function (err, result) {
+        swarmdb.query(query, DB_NAME, OWNER, function (err, result) {
+            // result: {"data":[{"email":"paul@gmail.com","name":"Paul","age":8}]}
             result = JSON.parse(result);
-            assert(result.email === "paul@gmail.com");
-            assert(result.name === "Paul");
-            assert(result.age === 8);
+            assert(result.data[0].email === "paul@gmail.com");
+            assert(result.data[0].name === "Paul");
+            assert(result.data[0].age === 8);
             done();
         });
     });
-    */
+    
 });

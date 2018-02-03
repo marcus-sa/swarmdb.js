@@ -99,6 +99,16 @@ SWARMDB.prototype = {
             that.request(msg, callback);
         });
     },
+    listDatabases: function(owner, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "ListDatabases",
+            "owner": owner
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
+    },    
     createTable: function(database, table, owner, columns, callback) {
         var that = this;
         var msg = JSON.stringify({
@@ -131,16 +141,12 @@ SWARMDB.prototype = {
         //     throw "rows field in Put method is NOT a VALID array";
         // }
         var that = this;
-        var rowArr = [];
-        for (var i = 0; i < rows.length; i++) {
-            rowArr.push({"Cells": rows[i]});
-        }
         var msg = JSON.stringify({
             "requesttype": "Put",
             "database": database,
             "table": table,
             "owner": owner,
-            "rows": rowArr,
+            "rows": rows,
             "columns": null
         }) + "\n";
         this.promise.then(() => {
@@ -153,7 +159,7 @@ SWARMDB.prototype = {
             "requesttype": "Query",
             "database": database,
             "owner": owner,
-            "RawQuery": queryStatement
+            "Query": queryStatement
         }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);

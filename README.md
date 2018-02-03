@@ -61,6 +61,19 @@ swarmdb.createDatabase("testdb", "test.eth", 1, function (err, result) {
 });
 ```
 
+## List databases
+List existing databases by specifying the owner.
+
+> `swarmdb.listDatabases(owner, callback)`
+```javascript
+swarmdb.listDatabases("test.eth", function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+});
+```
+
 ## Create table
 Create a table by specifying database name, table name, owner and column details.  
 
