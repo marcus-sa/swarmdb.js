@@ -7,6 +7,8 @@ var Web3 = require('web3');
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
 
+var CURRENT_SWARMDBJS_VERSION = "0.0.4";
+
 function SWARMDB(options) {
     var client = new net.Socket();
     var providerUrl = PROVIDER ? PROVIDER : "http://localhost:8545";
@@ -19,7 +21,8 @@ function SWARMDB(options) {
 
     var that = this;
 
-    this.client = client.connect(options.port, options.host, function() {  
+    this.client = client.connect(options.port, options.host, function() {
+        logExceptOnTest('CURRENT SWARMDBJS VERSION: ' + CURRENT_SWARMDBJS_VERSION);
         logExceptOnTest('CONNECTED TO: ' + options.host + ':' + options.port);
     });
 
@@ -117,6 +120,17 @@ SWARMDB.prototype = {
             "table": table,
             "owner": owner,
             "columns": columns
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
+    },
+    listTables: function(database, owner, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "ListTables",
+            "database": database,
+            "owner": owner
         }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);

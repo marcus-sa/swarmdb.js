@@ -98,6 +98,19 @@ swarmdb.createTable("testdb", "contacts", "test.eth", columns, function (err, re
 });
 ```
 
+## List tables
+List existing tables by specifying the database name and the owner.
+
+> `swarmdb.listTables(db, owner, callback)`
+```javascript
+swarmdb.listTables("testdb", "test.eth", function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+});
+```
+
 ## Read / Get / Select
 Read a row (or rows) may be done via a Get call or a SQL Select query.
 

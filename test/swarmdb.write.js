@@ -1,6 +1,6 @@
 process.env.NODE_ENV = "test";
 
-require("./swarmdb.createTable.js");
+require("./swarmdb.listTables.js");
 
 var assert = require('assert');
 var swarmdb = require('./helper/client');
