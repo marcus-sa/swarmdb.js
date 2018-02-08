@@ -5,12 +5,10 @@ require("./swarmdb.write.js");
 var assert = require('assert');
 var swarmdb = require('./helper/client');
 
-const { DB_NAME, TABLE_NAME, OWNER } = require('./helper/constants');
-
 describe('read a row', function() {
 
     it('swarmdb.get', function (done) {
-        swarmdb.get(DB_NAME, TABLE_NAME, OWNER, "bertie@gmail.com", function (err, result) {
+        swarmdb.get("bertie@gmail.com", function (err, result) {
             // result: {"data":[{"email":"bertie@gmail.com","name":"Bertie Basset","age":7}]}
             result = JSON.parse(result);
             assert(result.data[0].email === "bertie@gmail.com");
@@ -23,7 +21,7 @@ describe('read a row', function() {
     
     it('swarmdb.select', function (done) {
         var query = "select email, age, name from contacts where email = 'paul@gmail.com'";
-        swarmdb.query(query, DB_NAME, OWNER, function (err, result) {
+        swarmdb.query(query, function (err, result) {
             // result: {"data":[{"email":"paul@gmail.com","name":"Paul","age":8}]}
             result = JSON.parse(result);
             assert(result.data[0].email === "paul@gmail.com");

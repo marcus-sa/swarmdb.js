@@ -7,7 +7,7 @@ var Web3 = require('web3');
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
 
-var CURRENT_SWARMDBJS_VERSION = "0.0.4";
+var CURRENT_SWARMDBJS_VERSION = "0.0.5-alpha.2";
 
 function SWARMDB(options) {
     var client = new net.Socket();
@@ -18,6 +18,11 @@ function SWARMDB(options) {
     // store the requests in buffer
     this.buffer = [];
     this.waitForResponse = false;
+
+    // store owner and currently active database, table
+    this.owner = null;
+    this.database = null;
+    this.table = null;
 
     var that = this;
 
@@ -90,59 +95,69 @@ SWARMDB.prototype = {
             this.waitForResponse = true;
         }
     },
-    createDatabase: function(database, owner, encrypted, callback) {
+    createDatabase: function(owner, database, encrypted, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "CreateDatabase",
-            "database": database,
             "owner": owner,
+            "database": database,
             "encrypted": encrypted
         }) + "\n";
+        that.owner = owner;
+        that.database = database;
         this.promise.then(() => {
             that.request(msg, callback);
         });
     },
-    listDatabases: function(owner, callback) {
+    listDatabases: function(callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "ListDatabases",
-            "owner": owner
+            "owner": that.owner
         }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);
         });
-    },    
-    createTable: function(database, table, owner, columns, callback) {
+    }, 
+    openDatabase: function(owner, database) {
+        this.owner = owner;
+        this.database = database;
+    },   
+    createTable: function(table, columns, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "CreateTable",
-            "database": database,
+            "owner": that.owner,
+            "database": that.database,
             "table": table,
-            "owner": owner,
             "columns": columns
         }) + "\n";
+        that.table = table;
         this.promise.then(() => {
             that.request(msg, callback);
         });
     },
-    listTables: function(database, owner, callback) {
+    listTables: function(callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "ListTables",
-            "database": database,
-            "owner": owner
+            "database": that.database,
+            "owner": that.owner
         }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);
         });
     },
-    get: function(database, table, owner, key, callback) {
+    openTable: function(table) {
+        this.table = table;
+    },
+    get: function(key, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Get",
-            "database": database,
-            "table": table,
-            "owner": owner,
+            "owner": that.owner,
+            "database": that.database,
+            "table": that.table,
             "key": key,
             "columns": null
         }) + "\n";
@@ -150,16 +165,16 @@ SWARMDB.prototype = {
             that.request(msg, callback);
         });
     },
-    put: function(database, table, owner, rows, callback) {
+    put: function(rows, callback) {
         // if (! (rows instanceof Array)) {
         //     throw "rows field in Put method is NOT a VALID array";
         // }
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Put",
-            "database": database,
-            "table": table,
-            "owner": owner,
+            "owner": that.owner,
+            "database": that.database,
+            "table": that.table,
             "rows": rows,
             "columns": null
         }) + "\n";
@@ -167,12 +182,12 @@ SWARMDB.prototype = {
             that.request(msg, callback);
         });
     },
-    query: function(queryStatement, database, owner, callback) {
+    query: function(queryStatement, callback) {
         var that = this;
         var msg = JSON.stringify({
             "requesttype": "Query",
-            "database": database,
-            "owner": owner,
+            "owner": that.owner,
+            "database": that.database,
             "Query": queryStatement
         }) + "\n";
         this.promise.then(() => {
