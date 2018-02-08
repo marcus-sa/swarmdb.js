@@ -5,7 +5,7 @@ require("./swarmdb.listDatabases.js");
 var assert = require('assert');
 var swarmdb = require('./helper/client');
 
-const { DB_NAME, TABLE_NAME, OWNER } = require('./helper/constants');
+const { TABLE_NAME } = require('./helper/constants');
 
 describe('create a table', function() {
     it('swarmdb.createTable', function (done) {
@@ -14,7 +14,7 @@ describe('create a table', function() {
             { "indextype": 1, "columnname": "name", "columntype": 2, "primary": 0 },
             { "indextype": 2, "columnname": "age", "columntype": 1, "primary": 0 }
         ];
-        swarmdb.createTable(DB_NAME, TABLE_NAME, OWNER, columns, function (err, result) {
+        swarmdb.createTable(TABLE_NAME, columns, function (err, result) {
             // result: {"affectedrowcount":1}
             result = JSON.parse(result);
             assert(result.affectedrowcount === 1);

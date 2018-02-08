@@ -12,7 +12,7 @@ To use swarmdb.js, you MUST install our SWARMDB Docker image and set up the SWAR
 ```bash
 > npm install swarmdb.js
 ```
-Note that since web3 module has some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, you need to install it manually right now.
+Note that since web3 module might have some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, you had better install it manually right now.
 ```bash
 > npm install web3@1.0.0-beta.26
 ```
@@ -46,14 +46,14 @@ var swarmdb = swarmdbAPI.createConnection({
 ```
 
 ## Create database
-Create a database by specifying database name, owner and encrypted status.
+Create a database by specifying owner, database name and encrypted status.
 
 Owner should be a valid ENS domain.  
 For encrypted status, 1 means true and 0 means false.
 
-> `swarmdb.createDatabase(db, owner, encrypted, callback)`
+> `swarmdb.createDatabase(owner, db, encrypted, callback)`
 ```javascript
-swarmdb.createDatabase("testdb", "test.eth", 1, function (err, result) {
+swarmdb.createDatabase("test.eth", "testdb", 1, function (err, result) {
     if (err) {
       throw err;
     }
@@ -61,12 +61,19 @@ swarmdb.createDatabase("testdb", "test.eth", 1, function (err, result) {
 });
 ```
 
-## List databases
-List existing databases by specifying the owner.
-
-> `swarmdb.listDatabases(owner, callback)`
+## Open database
+Open a database by specifying owner and database name.
+> `swarmdb.openDatabase(owner, db)`
 ```javascript
-swarmdb.listDatabases("test.eth", function (err, result) {
+swarmdb.openDatabase("test.eth", "otherdb");
+```
+
+## List databases
+List existing databases.
+
+> `swarmdb.listDatabases(callback)`
+```javascript
+swarmdb.listDatabases(function (err, result) {
     if (err) {
       throw err;
     }
@@ -75,7 +82,7 @@ swarmdb.listDatabases("test.eth", function (err, result) {
 ```
 
 ## Create table
-Create a table by specifying database name, table name, owner and column details.  
+Create a table by specifying table name and column details.  
 
 Columns consist of the following parameters.
 * **indextype**: enter the integer value corresponding with the desired indextype ([more details](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-column-types))
@@ -83,14 +90,14 @@ Columns consist of the following parameters.
 * **columntype**: enter the integer value corresponding with the desired columntype ([more details](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-index-types))
 * **primary**: enter 1 if the column is the primary key and 0 for any other column.
 
-> `swarmdb.createTable(db, table, owner, columns, callback)`
+> `swarmdb.createTable(table, columns, callback)`
 ```javascript
 var columns = [
     { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
     { "indextype": 2, "columnname": "name", "columntype": 2, "primary": 0 },
     { "indextype": 2, "columnname": "age", "columntype": 1, "primary": 0 }
 ];
-swarmdb.createTable("testdb", "contacts", "test.eth", columns, function (err, result) {
+swarmdb.createTable("contacts", columns, function (err, result) {
     if (err) {
       throw err;
     }
@@ -98,12 +105,19 @@ swarmdb.createTable("testdb", "contacts", "test.eth", columns, function (err, re
 });
 ```
 
-## List tables
-List existing tables by specifying the database name and the owner.
-
-> `swarmdb.listTables(db, owner, callback)`
+## Open table
+Open a table by specifying table name.
+> `swarmdb.openTable(table)`
 ```javascript
-swarmdb.listTables("testdb", "test.eth", function (err, result) {
+swarmdb.openTable("addresses");
+```
+
+## List tables
+List existing tables.
+
+> `swarmdb.listTables(callback)`
+```javascript
+swarmdb.listTables(function (err, result) {
     if (err) {
       throw err;
     }
@@ -117,9 +131,9 @@ Read a row (or rows) may be done via a Get call or a SQL Select query.
 ### Get
 Get calls allow for the retrieval of a single row by specifying the value of a row's primary key.
 
-> `swarmdb.get(db, table, owner, key, callback)`
+> `swarmdb.get(key, callback)`
 ```javascript
-swarmdb.get("testdb", "contacts", "test.eth", "bertie@gmail.com", function (err, result) {
+swarmdb.get("bertie@gmail.com", function (err, result) {
     if (err) {
       throw err;
     }
@@ -129,16 +143,16 @@ swarmdb.get("testdb", "contacts", "test.eth", "bertie@gmail.com", function (err,
 ### Select
 Select Query calls allow for the retrieval of rows by specifying a SELECT query using standard SQL. The [supported query operands](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#supported-query-operands) are allowed to be used on both primary and secondary keys.
 
-> `swarmdb.query(sqlQuery, db, owner, callback)`
+> `swarmdb.query(sqlQuery, callback)`
 ```javascript
-swarmdb.query("SELECT email, name, age FROM contacts WHERE email = 'bertie@gmail.com'", "testdb", "test.eth", function (err, result) {
+swarmdb.query("SELECT email, name, age FROM contacts WHERE email = 'bertie@gmail.com'", function (err, result) {
     if (err) {
       throw err;
     }
     console.log(result);
 });
 
-swarmdb.query("SELECT email, name, age FROM contacts WHERE age >= 5", "testdb", "test.eth", function (err, result) {
+swarmdb.query("SELECT email, name, age FROM contacts WHERE age >= 5", function (err, result) {
     if (err) {
       throw err;
     }
@@ -154,9 +168,9 @@ Put calls allow for writing rows.
 
 Note: The "rows" input consists of an array of rows, where a row is a defined as a JSON object containing column/value pairs.  Each row must at least include a column/value pair for the primary key.
 
-> `swarmdb.put(db, table, owner, rows, callback)`
+> `swarmdb.put(rows, callback)`
 ```javascript
-swarmdb.put("testdb", "contacts", "test.eth", tableowner, [ { "email": "bertie@gmail.com", "name": "Bertie Basset", "age": 7 }, { "email": "paul@gmail.com", "name": "Paul", "age": 25 } ],  function (err, result) {
+swarmdb.put( [ { "email": "bertie@gmail.com", "name": "Bertie Basset", "age": 7 }, { "email": "paul@gmail.com", "name": "Paul", "age": 25 } ],  function (err, result) {
     if (err) {
       throw err;
     }
@@ -166,14 +180,21 @@ swarmdb.put("testdb", "contacts", "test.eth", tableowner, [ { "email": "bertie@g
 ### Insert
 Insert Query calls allow for the insertion of rows by specifying an INSERT query using standard SQL. SWARMDB currently only supports one row insert per call.
 
-> `swarmdb.query(sqlQuery, db, owner, callback)`
+> `swarmdb.query(sqlQuery, callback)`
 ```javascript
-swarmdb.query("INSERT INTO contacts (email, name, age) VALUES ('bertie@gmail.com', 'Bertie Basset', 7);", "testdb", "test.eth", function (err, result) {
+swarmdb.query("INSERT INTO contacts (email, name, age) VALUES ('bertie@gmail.com', 'Bertie Basset', 7);", function (err, result) {
     if (err) {
       throw err;
     }
     console.log(result);
 });
+```
+
+## Try out the example
+Find the script inside example folder and run it in your Node.js project folder.
+```bash
+> npm install swarmdb.js
+> node apitest.js
 ```
 
 ## Run tests for developement
@@ -184,4 +205,4 @@ Make sure the private key is configured before running the tests
 ```
 
 ## Feedback / Question
-Email us at [support@wolk.com](mailto:support@wolk.com)
+Email us at [services@wolk.com](mailto:services@wolk.com)
