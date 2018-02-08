@@ -160,7 +160,7 @@ swarmdb.query("SELECT email, name, age FROM contacts WHERE age >= 5", function (
 });
 ```
 
-## Write / Put / Insert
+## Write / Put / Insert / Update
 Writing a row (or rows) may be done via a Put call or a SQL Insert query.
 
 ### Put
@@ -183,6 +183,18 @@ Insert Query calls allow for the insertion of rows by specifying an INSERT query
 > `swarmdb.query(sqlQuery, callback)`
 ```javascript
 swarmdb.query("INSERT INTO contacts (email, name, age) VALUES ('bertie@gmail.com', 'Bertie Basset', 7);", function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+});
+```
+
+### Update
+Update Query calls allow for the update on non-primary key using standard SQL.
+> `swarmdb.query(sqlQuery, callback)`
+```javascript
+swarmdb.query("Update contacts SET age=8 WHERE email='bertie@gmail.com';", function (err, result) {
     if (err) {
       throw err;
     }
