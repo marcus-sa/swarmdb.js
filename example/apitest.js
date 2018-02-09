@@ -19,6 +19,7 @@ swarmdb.createDatabase(owner, dbname, 1, function (err, result) {
     console.log("\n");
 });
 
+
 // list databases
 console.time('listDatabases took');
 swarmdb.listDatabases(function (err, result) {
@@ -29,13 +30,21 @@ swarmdb.listDatabases(function (err, result) {
 
 // create contacts table
 var columns = [
-    { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
-    { "indextype": 2, "columnname": "age", "columntype": 1, "primary": 0 }
+    { "indextype": "BPLUS", "columnname": "email", "columntype": "STRING", "primary": 1 },
+    { "indextype": "BPLUS", "columnname": "age", "columntype": "INTEGER", "primary": 0 }
 ];
 console.time('contacts createTable took');
 swarmdb.createTable(tablename1, columns, function (err, result) {
     err ? console.log("create contacts table error: " + err) : console.log("create contacts table response: " + result);
     console.timeEnd('contacts createTable took');
+    console.log("\n");
+});
+
+// describe contacts table
+console.time('contacts describeTable took');
+swarmdb.describeTable(tablename1, function (err, result) {
+    err ? console.log("describe contacts table error: " + err) : console.log("describe contacts table response: " + result);
+    console.timeEnd('contacts describeTable took');
     console.log("\n");
 });
 
@@ -73,8 +82,8 @@ swarmdb.get( "test001@wolk.com", function (err, result) {
 
 // create addresses table
 columns = [
-    { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
-    { "indextype": 2, "columnname": "address", "columntype": 2, "primary": 0 }
+    { "indextype": "BPLUS", "columnname": "email", "columntype": "STRING", "primary": 1 },
+    { "indextype": "BPLUS", "columnname": "address", "columntype": "STRING", "primary": 0 }
 ];
 console.time('addresses createTable took');
 swarmdb.createTable(tablename2, columns, function (err, result) {
