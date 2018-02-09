@@ -1,7 +1,5 @@
 # SWARMDB JavaScript API
 
-[![Join the chat at https://gitter.im/wolktoken/swarmdb.js](https://badges.gitter.im/wolktoken/swarmdb.js.svg)](https://gitter.im/wolktoken/swarmdb.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 This is a client library for the SWARMDB API, implemented in JavaScript. It's available on npm as a node module.
 
 To use swarmdb.js, you MUST install our SWARMDB Docker image and set up the SWARMDB node first. Instructions can be found [HERE](https://github.com/wolkdb/swarm.wolk.com).
