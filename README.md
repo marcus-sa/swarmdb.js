@@ -1,5 +1,7 @@
 # SWARMDB JavaScript API
 
+[![Join the chat at https://gitter.im/wolkdb/swarmdb.js](https://badges.gitter.im/wolkdb/swarmdb.js.svg)](https://gitter.im/wolkdb/swarmdb.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is a client library for the SWARMDB API, implemented in JavaScript. It's available on npm as a node module.
 
 To use swarmdb.js, you MUST install our SWARMDB Docker image and set up the SWARMDB node first. Instructions can be found [HERE](https://github.com/wolkdb/swarm.wolk.com).
@@ -82,7 +84,7 @@ swarmdb.listDatabases(function (err, result) {
 ## Create table
 Create a table by specifying table name and column details.  
 
-Columns consist of the following parameters.
+Columns consist of the following parameters:
 * **indextype**: enter the desired indextype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-index-types)
 * **columnname**: enter the desired column name (no spaces allowed)
 * **columntype**: enter the desired columntype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-column-types)
