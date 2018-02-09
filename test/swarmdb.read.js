@@ -9,7 +9,7 @@ describe('read a row', function() {
 
     it('swarmdb.get', function (done) {
         swarmdb.get("bertie@gmail.com", function (err, result) {
-            // result: {"data":[{"email":"bertie@gmail.com","name":"Bertie Basset","age":7}]}
+            // result: {"data":[{"email":"bertie@gmail.com","name":"Bertie Basset","age":17}]}
             result = JSON.parse(result);
             assert(result.data[0].email === "bertie@gmail.com");
             assert(result.data[0].name === "Bertie Basset");
