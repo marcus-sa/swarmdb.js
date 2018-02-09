@@ -1,6 +1,6 @@
 process.env.NODE_ENV = "test";
 
-require("./swarmdb.listTables.js");
+require("./swarmdb.describeTable.js");
 
 var assert = require('assert');
 var swarmdb = require('./helper/client');
@@ -18,6 +18,16 @@ describe('write a row', function() {
 
     it('swarmdb.insert', function (done) {
         var query = "insert into contacts (email, age, name) values ('paul@gmail.com', 8, 'Paul')";
+        swarmdb.query(query, function (err, result) {
+            // result: {"affectedrowcount":1}
+            result = JSON.parse(result);
+            assert(result.affectedrowcount === 1);
+            done();
+        });
+    });
+
+    it('swarmdb.update', function (done) {
+        var query = "update contacts set age=17 where email='bertie@gmail.com'";
         swarmdb.query(query, function (err, result) {
             // result: {"affectedrowcount":1}
             result = JSON.parse(result);

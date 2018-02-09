@@ -13,7 +13,7 @@ describe('read a row', function() {
             result = JSON.parse(result);
             assert(result.data[0].email === "bertie@gmail.com");
             assert(result.data[0].name === "Bertie Basset");
-            assert(result.data[0].age === 7);
+            assert(result.data[0].age === 17);
             done();
         });
     });

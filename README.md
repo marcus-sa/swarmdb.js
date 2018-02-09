@@ -51,7 +51,7 @@ Create a database by specifying owner, database name and encrypted status.
 Owner should be a valid ENS domain.  
 For encrypted status, 1 means true and 0 means false.
 
-> `swarmdb.createDatabase(owner, db, encrypted, callback)`
+> `swarmdb.createDatabase(owner, databaseName, encrypted, callback)`
 ```javascript
 swarmdb.createDatabase("test.eth", "testdb", 1, function (err, result) {
     if (err) {
@@ -63,9 +63,9 @@ swarmdb.createDatabase("test.eth", "testdb", 1, function (err, result) {
 
 ## Open database
 Open a database by specifying owner and database name.
-> `swarmdb.openDatabase(owner, db)`
+> `swarmdb.openDatabase(owner, databaseName)`
 ```javascript
-swarmdb.openDatabase("test.eth", "otherdb");
+swarmdb.openDatabase("test.eth", "testdb");
 ```
 
 ## List databases
@@ -85,17 +85,17 @@ swarmdb.listDatabases(function (err, result) {
 Create a table by specifying table name and column details.  
 
 Columns consist of the following parameters.
-* **indextype**: enter the integer value corresponding with the desired indextype ([more details](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-column-types))
+* **indextype**: enter the desired indextype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-index-types)
 * **columnname**: enter the desired column name (no spaces allowed)
-* **columntype**: enter the integer value corresponding with the desired columntype ([more details](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-index-types))
+* **columntype**: enter the desired columntype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-column-types)
 * **primary**: enter 1 if the column is the primary key and 0 for any other column.
 
-> `swarmdb.createTable(table, columns, callback)`
+> `swarmdb.createTable(tableName, columns, callback)`
 ```javascript
 var columns = [
-    { "indextype": 2, "columnname": "email", "columntype": 2, "primary": 1 },
-    { "indextype": 2, "columnname": "name", "columntype": 2, "primary": 0 },
-    { "indextype": 2, "columnname": "age", "columntype": 1, "primary": 0 }
+    { "indextype": "BPLUS", "columnname": "email", "columntype": "STRING",  "primary": 1 },
+    { "indextype": "HASH",  "columnname": "name",  "columntype": "STRING",  "primary": 0 },
+    { "indextype": "BPLUS", "columnname": "age",   "columntype": "INTEGER", "primary": 0 }
 ];
 swarmdb.createTable("contacts", columns, function (err, result) {
     if (err) {
@@ -107,9 +107,21 @@ swarmdb.createTable("contacts", columns, function (err, result) {
 
 ## Open table
 Open a table by specifying table name.
-> `swarmdb.openTable(table)`
+> `swarmdb.openTable(tableName)`
 ```javascript
-swarmdb.openTable("addresses");
+swarmdb.openTable("contacts");
+```
+
+## Describe table
+Describe a table by specifying table name.
+> `swarmdb.describeTable(tableName, callback)`
+```javascript
+swarmdb.describeTable("contacts", function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+});
 ```
 
 ## List tables
@@ -194,7 +206,7 @@ swarmdb.query("INSERT INTO contacts (email, name, age) VALUES ('bertie@gmail.com
 Update Query calls allow for the update on non-primary key using standard SQL.
 > `swarmdb.query(sqlQuery, callback)`
 ```javascript
-swarmdb.query("Update contacts SET age=8 WHERE email='bertie@gmail.com';", function (err, result) {
+swarmdb.query("UPDATE contacts SET age=8 WHERE email='bertie@gmail.com';", function (err, result) {
     if (err) {
       throw err;
     }

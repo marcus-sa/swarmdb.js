@@ -7,7 +7,7 @@ var Web3 = require('web3');
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
 
-var CURRENT_SWARMDBJS_VERSION = "0.0.5-alpha.2";
+var CURRENT_SWARMDBJS_VERSION = "0.0.5-alpha.3";
 
 function SWARMDB(options) {
     var client = new net.Socket();
@@ -47,10 +47,17 @@ function SWARMDB(options) {
                     throw "Please set correct PRIVATE_KEY";
                 }
                 if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
-                var sig = that.web3.eth.accounts.sign(data.toString().replace(/\n|\r/g, ""), PRIVATE_KEY);
+
+                var challengePair = JSON.parse(data.toString().replace(/\n|\r/g, ""));
+                var challenge = challengePair.challenge;
+                var serverVersion = challengePair.serverversion;
+                logExceptOnTest("CURRENT SERVER VERSION: " + serverVersion);
+                
+                var sig = that.web3.eth.accounts.sign(challenge, PRIVATE_KEY);
                 // logExceptOnTest("Sending signature: " + sig.signature.slice(2));
+                var challengeResponse = { response: sig.signature.slice(2), clientversion: CURRENT_SWARMDBJS_VERSION, clientname: "swarmdb.js"  };
                 that.signChallenge = true;
-                that.verify = that.client.write(sig.signature.slice(2) + "\n", null, function() {
+                that.verify = that.client.write(JSON.stringify(challengeResponse) + "\n", null, function() {
                     resolve();
                 });   
             }
@@ -133,6 +140,18 @@ SWARMDB.prototype = {
             "columns": columns
         }) + "\n";
         that.table = table;
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
+    },
+    describeTable: function(table, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "DescribeTable",
+            "owner": that.owner,
+            "database": that.database,
+            "table": table
+        }) + "\n";
         this.promise.then(() => {
             that.request(msg, callback);
         });
