@@ -7,7 +7,7 @@ var Web3 = require('web3');
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
 
-var CURRENT_SWARMDBJS_VERSION = "0.0.5-alpha.3";
+var CURRENT_SWARMDBJS_VERSION = "0.0.5-alpha.4";
 
 function SWARMDB(options) {
     var client = new net.Socket();
