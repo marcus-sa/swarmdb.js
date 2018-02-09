@@ -1,18 +1,25 @@
 {
   "name": "swarmdb.js",
-  "version": "0.0.3",
+  "version": "0.0.5-alpha.4",
   "description": "SWARMDB JavaScript API",
   "main": "./index.js",
   "dependencies": {
     "net": "^1.0.2",
     "web3": "^1.0.0-beta.26"
   },
-  "scripts": {},
+  "devDependencies": {
+    "jshint": "^2.9.5",
+    "mocha": "^4.1.0"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/mocha",
+    "lint": "node_modules/.bin/jshint index.js"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wolktoken/swarmdb.js.git"
+    "url": "https://github.com/wolkdb/swarmdb.js.git"
   },
-  "homepage": "https://github.com/wolktoken/swarmdb.js",
+  "homepage": "https://github.com/wolkdb/swarmdb.js",
   "keywords": [
     "SWARMDB",
     "JavaScript"

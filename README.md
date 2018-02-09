@@ -84,7 +84,7 @@ swarmdb.listDatabases(function (err, result) {
 ## Create table
 Create a table by specifying table name and column details.  
 
-Columns consist of the following parameters.
+Columns consist of the following parameters:
 * **indextype**: enter the desired indextype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-index-types)
 * **columnname**: enter the desired column name (no spaces allowed)
 * **columntype**: enter the desired columntype, defined [HERE](https://github.com/wolkdb/swarm.wolk.com/wiki/8.-SWARMDB-Types#table-column-types)
