@@ -135,6 +135,17 @@ SWARMDB.prototype = {
     openDatabase: function(owner, database) {
         this.owner = owner;
         this.database = database;
+    },
+    dropDatabase: function(owner, database, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "DropDatabase",
+            "owner": owner,
+            "database": database
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
     },   
     createTable: function(table, columns, callback) {
         var that = this;
@@ -175,6 +186,18 @@ SWARMDB.prototype = {
     },
     openTable: function(table) {
         this.table = table;
+    },
+    dropTable: function(table, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "DropTable",
+            "owner": that.owner,
+            "database": that.database,
+            "table": table
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
     },
     get: function(key, callback) {
         var that = this;
