@@ -225,7 +225,8 @@ Find the script inside example folder and run it in your Node.js project folder.
 Make sure the private key is configured before running the tests
 ```bash
 > git clone https://github.com/wolkdb/swarmdb.js.git
-> cd swarmdb.js && npm test
+> cd swarmdb.js && npm install
+> npm test
 ```
 
 ## Feedback / Question

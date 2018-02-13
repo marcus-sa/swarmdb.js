@@ -10,7 +10,7 @@ var PROVIDER = process.env.PROVIDER;
 var VERSION_MAJOR = 0;
 var VERSION_MINOR = 0;
 var VERSION_PATCH = 9 ;
-var VERSION_META = "alpha.1"
+var VERSION_META = "alpha.2"
 
 var CURRENT_SWARMDBJS_VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
 if (VERSION_META) CURRENT_SWARMDBJS_VERSION += "-" + VERSION_META;
@@ -135,6 +135,17 @@ SWARMDB.prototype = {
     openDatabase: function(owner, database) {
         this.owner = owner;
         this.database = database;
+    },
+    dropDatabase: function(owner, database, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "DropDatabase",
+            "owner": owner,
+            "database": database
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
     },   
     createTable: function(table, columns, callback) {
         var that = this;
@@ -175,6 +186,18 @@ SWARMDB.prototype = {
     },
     openTable: function(table) {
         this.table = table;
+    },
+    dropTable: function(table, callback) {
+        var that = this;
+        var msg = JSON.stringify({
+            "requesttype": "DropTable",
+            "owner": that.owner,
+            "database": that.database,
+            "table": table
+        }) + "\n";
+        this.promise.then(() => {
+            that.request(msg, callback);
+        });
     },
     get: function(key, callback) {
         var that = this;
