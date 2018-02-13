@@ -148,4 +148,20 @@ console.time('listTables took');
 swarmdb.listTables(function (err, result) {
     err ? console.log("list tables error: " + err) : console.log("list tables response: " + result);
     console.timeEnd('listTables took');
+    console.log("\n");
+});
+
+// drop table
+console.time('dropTable took');
+swarmdb.dropTable(tablename1, function (err, result) {
+    err ? console.log("drop contacts table error: " + err) : console.log("dtop contacts table response: " + result);
+    console.timeEnd('dropTable took');
+    console.log("\n");
+});
+
+// drop database
+console.time('dropDatabase took');
+swarmdb.dropDatabase(owner, dbname, function (err, result) {
+    err ? console.log("drop testdb database error: " + err) : console.log("drop testdb database response: " + result);
+    console.timeEnd('dropDatabase took');
 });
