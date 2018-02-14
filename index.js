@@ -7,6 +7,7 @@ var Web3 = require('web3');
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
 
+
 var VERSION_MAJOR = 0;
 var VERSION_MINOR = 0;
 var VERSION_PATCH = 9 ;
