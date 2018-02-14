@@ -34,11 +34,11 @@ function SWARMDB(options) {
 
     this.client = client.connect(options.port, options.host, function() {
         logExceptOnTest('CURRENT SWARMDBJS VERSION: ' + CURRENT_SWARMDBJS_VERSION);
-        logExceptOnTest('CONNECTED TO: ' + options.host + ':' + options.port);
+        logExceptOnTest('CONNECTING TO: ' + options.host + ':' + options.port);
     });
 
     this.client.on('close', function() {
-        logExceptOnTest('Server side connection closed');
+        logExceptOnTest('Server Connection Closed: Connection was to ' + options.host + ':' + options.port + 'with PRIVATE_KEY of [' + PRIVATE_KEY + ']');
     });
 
     this.client.on('error', function(err) {
@@ -49,9 +49,13 @@ function SWARMDB(options) {
         that.client.on('data', function(data) {
             // make sure verification succeeds before processing any request
             if (!that.signChallenge) {
-                if (!PRIVATE_KEY || (PRIVATE_KEY.length != 64 && PRIVATE_KEY.length != 66)) {
-                    throw "Please set correct PRIVATE_KEY";
+                if (!PRIVATE_KEY) {
+                    throw "PRIVATE_KEY is empty! Please set PRIVATE_KEY in terminal";
                 }
+                if (PRIVATE_KEY.length != 64 && PRIVATE_KEY.length != 66) {
+                    throw "PRIVATE_KEY length is NOT Valid! Please set correct PRIVATE_KEY";
+                }
+
                 if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
 
                 var challengePair = JSON.parse(data.toString().replace(/\n|\r/g, ""));
