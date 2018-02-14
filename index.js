@@ -1,4 +1,4 @@
-// TODO: rewrite everything in  ES6
+// TODO: rewrite everything in ES6
 var net = require('net');
 // TODO: only import sub node module such as web3-eth-accounts for signing to make swarmdb.js lighter
 // https://www.npmjs.com/package/web3-providers-http + https://www.npmjs.com/package/web3-eth-accounts
