@@ -12,7 +12,7 @@ To use swarmdb.js, you MUST install our SWARMDB Docker image and set up the SWAR
 ```bash
 > npm install swarmdb.js
 ```
-Note that since web3 module might have some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, you had better install it manually right now.
+Note that since web3 module might have some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, it's recommended to install it manually right now.
 ```bash
 > npm install web3@1.0.0-beta.26
 ```
@@ -25,10 +25,12 @@ This private key is associated with the user configured on the SWARMDB node.
 ```bash
 > export PRIVATE_KEY=PRIVATE_KEY_IN_YOUR_CONFIG_FILE
 ```
+<!--
 (Optional) You can also specify an Ethereum provider instead of using the default http://localhost:8545
 ```bash
 > export PROVIDER=YOUR_PROVIDER_LINK
 ```
+-->
 
 ## Import module
 ```javascript
@@ -81,6 +83,19 @@ swarmdb.listDatabases(function (err, result) {
 });
 ```
 
+## Drop database
+Drop a database by specifying owner and database name.
+
+> `swarmdb.dropDatabase(owner, databaseName, callback)`
+```javascript
+swarmdb.dropDatabase("test.eth", "testdb", function (err, result) {
+    if (err) {
+        throw err;
+    }
+    console.log(result);
+});
+```
+
 ## Create table
 Create a table by specifying table name and column details.  
 
@@ -117,6 +132,18 @@ Describe a table by specifying table name.
 > `swarmdb.describeTable(tableName, callback)`
 ```javascript
 swarmdb.describeTable("contacts", function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+});
+```
+
+## Drop table
+Drop a table by specifying table name.
+> `swarmdb.dropTable(tableName, callback)`
+```javascript
+swarmdb.dropTable("contacts", function (err, result) {
     if (err) {
       throw err;
     }
