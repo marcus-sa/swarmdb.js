@@ -11,11 +11,6 @@ To use swarmdb.js, you MUST install our SWARMDB Docker image and set up the SWAR
 ## Install
 ```bash
 > npm install swarmdb.js
-```
-Note that since web3 module might have some [issues](https://github.com/ethereum/web3.js/issues/966) to be installed at a latest version, it's recommended to install it manually right now.
-```bash
-> npm install web3@1.0.0-beta.26
-```
 
 ## Configure
 Upon installation and startup of your SWARMDB node, a default user and associated private key are generated and stored in the [SWARMDB configuration file](https://github.com/wolkdb/swarm.wolk.com/wiki/9.-SWARMDB-Server-Configuration,--Authentication-and-Voting#configuration-file). 

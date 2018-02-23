@@ -1,8 +1,6 @@
 // TODO: rewrite everything in  ES6
 var net = require('net');
-// TODO: only import sub node module such as web3-eth-accounts for signing to make swarmdb.js lighter
-// https://www.npmjs.com/package/web3-providers-http + https://www.npmjs.com/package/web3-eth-accounts
-var Web3 = require('web3'); 
+var Web3EthAccounts = require('web3-eth-accounts');
 
 var PRIVATE_KEY = process.env.PRIVATE_KEY;
 var PROVIDER = process.env.PROVIDER;
@@ -18,7 +16,6 @@ if (VERSION_META) CURRENT_SWARMDBJS_VERSION += "-" + VERSION_META;
 function SWARMDB(options) {
     var client = new net.Socket();
     var providerUrl = PROVIDER ? PROVIDER : "http://localhost:8545";
-    this.web3 = new Web3(new Web3.providers.HttpProvider(providerUrl)); 
     
     this.signChallenge = false; 
     // store the requests in buffer
@@ -62,8 +59,9 @@ function SWARMDB(options) {
                 var challenge = challengePair.challenge;
                 var serverVersion = challengePair.serverversion;
                 logExceptOnTest("CURRENT SERVER VERSION: " + serverVersion);
-                
-                var sig = that.web3.eth.accounts.sign(challenge, PRIVATE_KEY);
+
+                var account = new Web3EthAccounts(providerUrl);
+                var sig = account.sign(challenge, PRIVATE_KEY);
                 // logExceptOnTest("Sending signature: " + sig.signature.slice(2));
                 var challengeResponse = { response: sig.signature.slice(2), clientversion: CURRENT_SWARMDBJS_VERSION, clientname: "swarmdb.js"  };
                 that.signChallenge = true;
