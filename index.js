@@ -1,271 +1,209 @@
-// TODO: rewrite everything in  ES6
-var net = require('net');
-var Web3EthAccounts = require('web3-eth-accounts');
+'use strict';
+ 
+const net = require('net');
+const Web3EthAccounts = require('web3-eth-accounts');
 
-var PRIVATE_KEY = process.env.PRIVATE_KEY;
-var PROVIDER = process.env.PROVIDER;
+let PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-var VERSION_MAJOR = 0;
-var VERSION_MINOR = 1;
-var VERSION_PATCH = 0;
-var VERSION_META = "";
+class SWARMDB {
+    constructor(address, port) {
+        this.socket = new net.Socket();
+        this.address = address;
+        this.port = port;
 
-var CURRENT_SWARMDBJS_VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
-if (VERSION_META) CURRENT_SWARMDBJS_VERSION += "-" + VERSION_META;
+        this.init();
+    }
+ 
+    init() {
+        this.socket.connect(this.port, this.address, () => {
+            console.log(`Connected to: ${this.address} :  ${this.port}`);
+        });
 
-function SWARMDB(options) {
-    var client = new net.Socket();
-    var providerUrl = PROVIDER ? PROVIDER : "http://localhost:8545";
+        this.socket.on('close', () => {
+            console.log('Connection closed');
+        });
+    }  
+
+    createConnection() {
+        let that = this;
+        let flag = false;
+        let account = new Web3EthAccounts("http://localhost:8545");
+
+        if (!PRIVATE_KEY) {
+            throw "PRIVATE_KEY is empty! Please set PRIVATE_KEY in terminal";
+        }
+        if (PRIVATE_KEY.length != 64 && PRIVATE_KEY.length != 66) {
+            throw "PRIVATE_KEY length is NOT Valid! Please set correct PRIVATE_KEY";
+        }
+        
+        if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
+
+
+        return new Promise((resolve, reject) => {
+            that.socket.once('data', (data) => {
+                if (!flag) {
+                    flag = true;
+                    let challengePair = JSON.parse(data.toString().replace(/\n|\r/g, ""));
+                    let challenge = challengePair.challenge;
+                    
+                    
+                    let sig = account.sign(challenge, PRIVATE_KEY);
     
-    this.signChallenge = false; 
-    // store the requests in buffer
-    this.buffer = [];
-    this.waitForResponse = false;
-
-    // store owner and currently active database, table
-    this.owner = null;
-    this.database = null;
-    this.table = null;
-
-    var that = this;
-
-    this.client = client.connect(options.port, options.host, function() {
-        logExceptOnTest('CURRENT SWARMDBJS VERSION: ' + CURRENT_SWARMDBJS_VERSION);
-        logExceptOnTest('CONNECTING TO: ' + options.host + ':' + options.port);
-    });
-
-    this.client.on('close', function() {
-        logExceptOnTest('Server Connection Closed: Connection was to ' + options.host + ':' + options.port + 'with PRIVATE_KEY of [' + PRIVATE_KEY + ']');
-    });
-
-    this.client.on('error', function(err) {
-        logExceptOnTest("Error: " + err);
-    });
-    
-    this.promise = new Promise((resolve, reject) => {
-        that.client.on('data', function(data) {
-            // make sure verification succeeds before processing any request
-            if (!that.signChallenge) {
-                if (!PRIVATE_KEY) {
-                    throw "PRIVATE_KEY is empty! Please set PRIVATE_KEY in terminal";
-                }
-                if (PRIVATE_KEY.length != 64 && PRIVATE_KEY.length != 66) {
-                    throw "PRIVATE_KEY length is NOT Valid! Please set correct PRIVATE_KEY";
-                }
-
-                if (PRIVATE_KEY.length == 64) PRIVATE_KEY = "0x" + PRIVATE_KEY;
-
-                var challengePair = JSON.parse(data.toString().replace(/\n|\r/g, ""));
-                var challenge = challengePair.challenge;
-                var serverVersion = challengePair.serverversion;
-                logExceptOnTest("CURRENT SERVER VERSION: " + serverVersion);
-
-                var account = new Web3EthAccounts(providerUrl);
-                var sig = account.sign(challenge, PRIVATE_KEY);
-                // logExceptOnTest("Sending signature: " + sig.signature.slice(2));
-                var challengeResponse = { response: sig.signature.slice(2), clientversion: CURRENT_SWARMDBJS_VERSION, clientname: "swarmdb.js"  };
-                that.signChallenge = true;
-                that.verify = that.client.write(JSON.stringify(challengeResponse) + "\n", null, function() {
+                    let challengeResponse = { response: sig.signature.slice(2), clientversion: "0.1.0", clientname: "swarmdb.js"  };
+                    // console.log(challengeResponse);
+                    that.socket.write(JSON.stringify(challengeResponse) + "\n");
+                    
                     resolve();
-                });   
-            }
-            // process the requests in the buffer in sequence
-            that.waitForResponse = false;
-            if (that.buffer.length) {
-                var pair = that.buffer.shift();
-                var handler = pair[0];
-                process.nextTick(function() {
-                    var dataJSON;
-                    if (parseJSON(data)) {
-                        dataJSON = JSON.parse(data);
-                        if (dataJSON.errorcode) {
-                            handler(JSON.stringify(dataJSON), null);
-                        }
-                        else {
-                            handler(null, data.toString().trim());
-                        }
+                }
+
+
+            });
+ 
+            that.socket.on('error', (err) => {
+                reject(err);
+            });
+ 
+        });        
+    }
+ 
+    sendMessage(message) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.socket.write(message);
+ 
+            that.socket.once('data', (data) => {
+                if (that.parseJSON(data)) {
+                    let dataJSON = JSON.parse(data);
+                    if (dataJSON.errorcode) {
+                        reject(dataJSON);
                     }
                     else {
-                        handler(null, data.toString().trim());
-                    }   
-                });
-                that.flush();
-            } 
+                        resolve(data.toString().trim());
+                    }
+                }
+                else {
+                    resolve(data.toString().trim());
+                }
+            });
+ 
+            that.socket.on('error', (err) => {
+                reject(err);
+            });
+ 
         });
-    });
-}
+    }
 
-// TODO: return Promise instead of callback after rewriting in ES6
-SWARMDB.prototype = {
-    // buffer the request
-    request: function(msg, handler) {
-        this.buffer.push([handler, msg]);
-        this.flush();
-    },
-    // send request to server
-    flush: function() {
-        var pair = this.buffer[0];
-        if (pair && !this.waitForResponse) {
-            this.client.write(pair[1]);
-            this.waitForResponse = true;
-        }
-    },
-    createDatabase: function(owner, database, encrypted, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+    createDatabase(owner, database, encrypted) {
+        let msg = JSON.stringify({
             "requesttype": "CreateDatabase",
             "owner": owner,
             "database": database,
             "encrypted": encrypted
         }) + "\n";
-        that.owner = owner;
-        that.database = database;
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    listDatabases: function(callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    listDatabases(owner) {
+        let msg = JSON.stringify({
             "requesttype": "ListDatabases",
-            "owner": that.owner
+            "owner": owner
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    }, 
-    openDatabase: function(owner, database) {
-        this.owner = owner;
-        this.database = database;
-    },
-    dropDatabase: function(owner, database, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    dropDatabase(owner, database) {
+        let msg = JSON.stringify({
             "requesttype": "DropDatabase",
             "owner": owner,
             "database": database
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },   
-    createTable: function(table, columns, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    createTable(owner, database, table, columns) {
+        let msg = JSON.stringify({
             "requesttype": "CreateTable",
-            "owner": that.owner,
-            "database": that.database,
+            "owner": owner,
+            "database": database,
             "table": table,
             "columns": columns
         }) + "\n";
-        that.table = table;
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    describeTable: function(table, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    describeTable(owner, database, table) {
+        let msg = JSON.stringify({
             "requesttype": "DescribeTable",
-            "owner": that.owner,
-            "database": that.database,
+            "owner": owner,
+            "database": database,
             "table": table
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    listTables: function(callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    listTables(owner, database) {
+        let msg = JSON.stringify({
             "requesttype": "ListTables",
-            "database": that.database,
-            "owner": that.owner
+            "owner": owner,
+            "database": database
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    openTable: function(table) {
-        this.table = table;
-    },
-    dropTable: function(table, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);   
+    }
+
+    dropTable(owner, database, table) {
+        let msg = JSON.stringify({
             "requesttype": "DropTable",
-            "owner": that.owner,
-            "database": that.database,
+            "owner": owner,
+            "database": database,
             "table": table
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    get: function(key, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    get(owner, database, table, key) {
+        let msg = JSON.stringify({
             "requesttype": "Get",
-            "owner": that.owner,
-            "database": that.database,
-            "table": that.table,
+            "owner": owner,
+            "database": database,
+            "table": table,
             "key": key,
             "columns": null
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    put: function(rows, callback) {
-        // if (! (rows instanceof Array)) {
-        //     throw "rows field in Put method is NOT a VALID array";
-        // }
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    put(owner, database, table, rows) {
+        let msg = JSON.stringify({
             "requesttype": "Put",
-            "owner": that.owner,
-            "database": that.database,
-            "table": that.table,
+            "owner": owner,
+            "database": database,
+            "table": table,
             "rows": rows,
             "columns": null
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
-    },
-    query: function(queryStatement, callback) {
-        var that = this;
-        var msg = JSON.stringify({
+        return this.sendMessage(msg);
+    }
+
+    query(owner, database, queryStatement) {
+        let msg = JSON.stringify({
             "requesttype": "Query",
-            "owner": that.owner,
-            "database": that.database,
+            "owner": owner,
+            "database": database,
             "Query": queryStatement
         }) + "\n";
-        this.promise.then(() => {
-            that.request(msg, callback);
-        });
+        return this.sendMessage(msg);
     }
-};
 
-// suppress logging in the test mode
-function logExceptOnTest(string) {
-    if (process.env.NODE_ENV !== 'test') {
-      console.log(string);
-    }
-}
-
-// check if a string is valid JSON string
-function parseJSON (jsonString){
-    try {
-        var o = JSON.parse(jsonString);
-        if (o && typeof o === "object") {
-            return true;
+    parseJSON (jsonString) {
+        try {
+            let o = JSON.parse(jsonString);
+            if (o && typeof o === "object") {
+                return true;
+            }
         }
+        catch (e) { }
+    
+        return false;
     }
-    catch (e) { }
-
-    return false;
 }
-
-exports.createConnection = function createConnection(options) {
-    return new SWARMDB(options);
-};
+module.exports = SWARMDB;
