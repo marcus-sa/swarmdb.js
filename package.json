@@ -1,30 +1,66 @@
 {
   "name": "swarmdb.js",
   "version": "0.1.0",
-
   "description": "SWARMDB JavaScript API",
-  "main": "./index.js",
-  "dependencies": {
-    "net": "^1.0.2",
-    "web3-eth-accounts": "^1.0.0-beta.30"
-  },
-  "devDependencies": {
-    "jshint": "^2.9.5",
-    "mocha": "^4.1.0"
-  },
-  "scripts": {
-    "test": "node_modules/.bin/mocha",
-    "lint": "node_modules/.bin/jshint index.js"
+  "main": "dist/swarmdb.js",
+  "module": "dist/swarmdb.mjs",
+  "jsnext:main": "dist/swarmdb.mjs",
+  "directories": {
+    "doc": "doc",
+    "example": "example",
+    "lib": "lib",
+    "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wolkdb/swarmdb.js.git"
+    "url": "git+https://github.com/wolkdb/swarmdb.js.git"
   },
-  "homepage": "https://github.com/wolkdb/swarmdb.js",
   "keywords": [
     "SWARMDB",
-    "JavaScript"
+    "ethereum",
+    "swarm",
+    "wolk"
   ],
   "author": "Bruce Han <bruce@wolk.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wolkdb/swarmdb.js/issues"
+  },
+  "homepage": "https://github.com/wolkdb/swarmdb.js#readme",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix \"lib/**/*.js\"",
+      "prettier --write --no-semi --single-quote --trailing-comma=es5",
+      "git add"
+    ]
+  },
+  "pre-commit": {
+    "run": [
+      "lint:staged",
+      "test"
+    ],
+    "silent": true
+  },
+  "scripts": {
+    "lint:staged": "lint-staged",
+    "build": "rollup -c",
+    "build:test": "rollup -c --environment TEST",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "eslint": "^4.19.1",
+    "jest": "^22.4.3",
+    "lint-staged": "^7.0.4",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.12.0",
+    "rollup": "^0.57.1",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-butternut": "^0.1.0"
+  },
+  "dependencies": {
+    "net": "^1.0.2",
+    "web3-eth-accounts": "^1.0.0-beta.30"
+  }
 }
